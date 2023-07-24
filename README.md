@@ -14,7 +14,7 @@ Chip-8 is a simple, interpreted programming language used in the late 1970s and 
    - Open the html file in a web browser
 
 3. Load ROMs
-   - To run a specific Chip-8 game, you'll need the corresponding ROM file. Place the ROM files in the appropriate directory and load them using the emulator's interface. 
+   - To run a specific Chip-8 game, you'll need the corresponding ROM file. Place the ROM files in the appropriate directory and load them using the emulator's interface. I've included ROMS "BLINKY" and "BLITZ"
 
 # Acknowledgements 
 Tutorial: https://www.freecodecamp.org/news/creating-your-very-own-chip-8-emulator/
