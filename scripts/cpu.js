@@ -1,15 +1,12 @@
-// here, i am imitating the functionality of a chip-8 cpu
+// here, I am imitating the functionality of a chip-8 cpu
 class CPU {
-    
     constructor(renderer, keyboard, speaker) {
-        
         this.renderer = renderer;
         this.keyboard = keyboard;
         this.speaker = speaker;
 
-        //4096 bytes of memory
+        //4096 bytes of memory, represented as array of 8-bit unsigned integers, with length 4096
         this.memory = new Uint8Array(4096);
-        // array of 8-bit unsigned integers, with length 4096
 
         // 16 8-bit registers
         this.v = new Uint8Array(16);
@@ -67,24 +64,29 @@ class CPU {
     loadRom(romName) {
         var request = new XMLHttpRequest;
         var self = this;
+        
         //handles the response from our request
         request.onload = function() {
-
             if(request.response) {
-                //stores the contents of the response in an 8bit int array
+
+                //stores the contents of the response in an 8-bit int array
                 let program = new Uint8Array(request.response);
+
                 //loads the ROM into memory
                 self.loadProgramIntoMemory(program);
             }
         }
+
         //request to retreive the ROM from our ROMS folder
         request.open('GET', 'roms/' + romName);
+
         request.responseType = 'arraybuffer';
 
         //send the GET request
         request.send();
     }
-
+    
+    // Cycles the CPU (each cycle grabs an instruction, executes it, and more)
     cycle() {
         for (let i = 0; i < this.speed; i++) {
             if (!this.paused) {
@@ -103,7 +105,6 @@ class CPU {
         if (this.delayTimer > 0) {
             this.delayTimer -= 1;
         }
-
         if (this.soundTimer > 0) {
             this.soundTimer -= 1;
         }
@@ -118,13 +119,11 @@ class CPU {
     }
 
     executeInstruction(opcode) {
-        // increment by 2 bc each instruction is 2 bytes long
+
+        // increment program counter by 2 because each instruction is 2 bytes long
         this.pc += 2;
-
         let x = (opcode & 0x0F00) >> 8;
-
         let y = (opcode & 0x00F0) >> 4;
-
 
         // code for every instruction
         switch (opcode & 0xF000) {
@@ -137,7 +136,6 @@ class CPU {
                         this.pc = this.stack.pop();
                         break;
                 }
-        
                 break;
             case 0x1000:
                 this.pc = (opcode & 0xFFF);
@@ -188,7 +186,6 @@ class CPU {
                         if (sum > 0xFF) {
                             this.v[0xF] = 1;
                         }
-                        
                         this.v[x] = sum;
                         break;
                     case 0x5:
@@ -216,7 +213,6 @@ class CPU {
                         this.v[x] <<= 1;
                         break;
                 }
-        
                 break;
             case 0x9000:
                 if (this.v[x] !== this.v[y]) {
@@ -236,26 +232,25 @@ class CPU {
             case 0xD000:
                 let width = 8;
                 let height = (opcode & 0xF);
-
                 this.v[0xF] = 0;
-
                 for (let row = 0; row < height; row++) {
                     let sprite = this.memory[this.i + row];
-
                      for (let col = 0; col < width; col++) {
-            // If the bit (sprite) is not 0, render/erase the pixel
+
+                        // If the bit (sprite) is not 0, render/erase the pixel
                         if ((sprite & 0x80) > 0) {
-                // If setPixel returns 1, which means a pixel was erased, set VF to 1
+
+                            // If setPixel returns 1, which means a pixel was erased, set VF to 1
                             if (this.renderer.setPixel(this.v[x] + col, this.v[y] + row)) {
-                    this.v[0xF] = 1;
+                                this.v[0xF] = 1;
                              }   
                         }
 
-            // Shift the sprite left 1. This will move the next next col/bit of the sprite into the first position.
-            // Ex. 10010000 << 1 will become 0010000
-            sprite <<= 1;
+                    // Shift the sprite left 1. This will move the next next col/bit of the sprite into the first position.
+                    // Ex. 10010000 << 1 will become 0010000
+                    sprite <<= 1;
                      }
-             }
+                }
             break;
             case 0xE000:
                 switch (opcode & 0xFF) {
@@ -270,7 +265,6 @@ class CPU {
                         }
                         break;
                 }
-        
                 break;
             case 0xF000:
                 switch (opcode & 0xFF) {
@@ -278,6 +272,7 @@ class CPU {
                         this.v[x] = this.delayTimer;
                         break;
                     case 0x0A:
+
                         // pauses the emulator until a key is pressed
                         this.paused = true;
                         this.keyboard.onNextKeyPress = function(key) {
@@ -317,11 +312,8 @@ class CPU {
                 break;
             default:
                 throw new Error('Unknown opcode ' + opcode);
-        }
-        
+        }  
     }
-
-
 }
 
 export default CPU;

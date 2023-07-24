@@ -1,6 +1,8 @@
 class Keyboard {
     constructor() {
         this.KEYMAP = {
+            
+            // Maps decimal to hex, comment is the char representation
             49: 0x1, // 1
             50: 0x2, // 2
             51: 0x3, // 3
@@ -20,10 +22,7 @@ class Keyboard {
         }
         // array to keep track of pressed keys
         this.keysPressed = [];
-        
         this.onNextKeyPress = null;
-
-        //
         window.addEventListener('keydown', this.onKeyDown.bind(this), false);
         window.addEventListener('keyup', this.onKeyUp.bind(this),false);
     }
@@ -32,10 +31,11 @@ class Keyboard {
         return this.keysPressed[keyCode];
     }
 
+    // if a key is pressed, add it to an array
+    // A chip-8 instruction is initialized to call this function
     onKeyDown(event) {
         let key = this.KEYMAP[event.which];
         this.keysPressed[key] = true;
-
         if (this.onNextKeyPress != null && key != null) {
             this.onNextKeyPress(parseInt(key));
             this.onNextKeyPress= null;
@@ -46,6 +46,4 @@ class Keyboard {
         this.keysPressed[key] = false;
     }
 }
-
-
 export default Keyboard;
